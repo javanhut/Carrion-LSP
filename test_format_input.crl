@@ -1,0 +1,18 @@
+grim CorrectFormat:
+    init():
+        ignore
+    spell correct_format_spell():
+        at_this_level="Correct"
+        spell this_is_nested():
+            print("This is a correctly formatted nest")
+        this_is_nested()
+        return at_this_level
+    spell another_method():
+        print("Is another method")
+        return "this method"
+
+
+main:
+    format=CorrectFormat()
+    format.correct_format_spell()
+    format.another_method()
