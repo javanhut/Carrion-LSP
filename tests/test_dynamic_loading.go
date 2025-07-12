@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -9,7 +12,7 @@ import (
 
 func main() {
 	fmt.Println("Testing dynamic loading system...")
-	
+
 	// Create analyzer with dynamic loading
 	a := analyzer.New()
 
@@ -42,7 +45,7 @@ func main() {
 	// Test refresh
 	fmt.Printf("\nTesting dynamic refresh...\n")
 	a.RefreshDynamicData()
-	
+
 	// Test again after refresh
 	completions = a.GetCompletions("test.crl", position)
 	fmt.Printf("After refresh - Found %d completions\n", len(completions))

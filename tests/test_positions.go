@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -11,7 +14,7 @@ import (
 func main() {
 	analyzer := analyzer.New()
 
-	// Test code with actual positions where we want to test completion  
+	// Test code with actual positions where we want to test completion
 	code := `grim Person:
     init(name: string):
         self.name = name
@@ -55,11 +58,11 @@ main:
 	for i, line := range lines {
 		fmt.Printf("Line %2d: %s\n", i, line)
 	}
-	
+
 	// Test completion after adding a dot to person variable (line 15)
 	modifiedCode := strings.ReplaceAll(code, "person = Person(\"Alice\")", "person = Person(\"Alice\")\n    person.")
 	analyzer.UpdateDocument("test.crl", modifiedCode, nil)
-	
+
 	fmt.Printf("\n=== Testing person. completion ===\n")
 	completions := analyzer.GetCompletions("test.crl", protocol.Position{Line: 16, Character: 11})
 	fmt.Printf("Found %d completions:\n", len(completions))

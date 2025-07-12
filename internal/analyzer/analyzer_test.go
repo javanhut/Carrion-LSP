@@ -95,23 +95,23 @@ main:
 
 func TestAnalyzer_New(t *testing.T) {
 	analyzer := New()
-	
+
 	if analyzer == nil {
 		t.Fatal("Expected analyzer to be created")
 	}
-	
+
 	if analyzer.documents == nil {
 		t.Error("Expected documents map to be initialized")
 	}
-	
+
 	if analyzer.builtins == nil {
 		t.Error("Expected builtins map to be initialized")
 	}
-	
+
 	if analyzer.carriongGrimoires == nil {
 		t.Error("Expected carrion grimoires map to be initialized")
 	}
-	
+
 	// Test built-ins are loaded
 	expectedBuiltins := []string{"print", "len", "str", "int", "float", "input", "range", "pairs"}
 	for _, builtin := range expectedBuiltins {
@@ -119,7 +119,7 @@ func TestAnalyzer_New(t *testing.T) {
 			t.Errorf("Expected builtin '%s' to be loaded", builtin)
 		}
 	}
-	
+
 	// Test grimoires are loaded
 	expectedGrimoires := []string{"File", "OS"}
 	for _, grimoire := range expectedGrimoires {
@@ -131,29 +131,29 @@ func TestAnalyzer_New(t *testing.T) {
 
 func TestAnalyzer_UpdateDocument(t *testing.T) {
 	analyzer := New()
-	
+
 	doc := analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
+
 	if doc == nil {
 		t.Fatal("Expected document to be created")
 	}
-	
+
 	if doc.URI != "test.crl" {
 		t.Errorf("Expected URI to be 'test.crl', got %s", doc.URI)
 	}
-	
+
 	if doc.Content != testCarrionCode {
 		t.Error("Expected content to match input")
 	}
-	
+
 	if doc.AST == nil {
 		t.Error("Expected AST to be parsed")
 	}
-	
+
 	if doc.Symbols == nil {
 		t.Fatal("Expected symbols to be created")
 	}
-	
+
 	// Test specific symbols are found
 	expectedSpells := []string{"greet", "calculate", "main_function"}
 	for _, spell := range expectedSpells {
@@ -161,14 +161,14 @@ func TestAnalyzer_UpdateDocument(t *testing.T) {
 			t.Errorf("Expected spell '%s' to be found", spell)
 		}
 	}
-	
+
 	expectedGrimoires := []string{"Person", "Employee"}
 	for _, grimoire := range expectedGrimoires {
 		if _, exists := doc.Symbols.Grimoires[grimoire]; !exists {
 			t.Errorf("Expected grimoire '%s' to be found", grimoire)
 		}
 	}
-	
+
 	// Test inheritance - skip for now since the test code doesn't have inheritance
 	if employee, exists := doc.Symbols.Grimoires["Employee"]; exists {
 		// Note: Test code doesn't include inheritance syntax, so this test is disabled
@@ -178,13 +178,13 @@ func TestAnalyzer_UpdateDocument(t *testing.T) {
 
 func TestAnalyzer_UpdateDocument_Versioning(t *testing.T) {
 	analyzer := New()
-	
+
 	// First update
 	doc1 := analyzer.UpdateDocument("test.crl", "spell test1(): return 1", nil)
 	if doc1.Version != 1 {
 		t.Errorf("Expected first version to be 1, got %d", doc1.Version)
 	}
-	
+
 	// Second update
 	doc2 := analyzer.UpdateDocument("test.crl", "spell test2(): return 2", nil)
 	if doc2.Version != 2 {
@@ -194,16 +194,16 @@ func TestAnalyzer_UpdateDocument_Versioning(t *testing.T) {
 
 func TestAnalyzer_RemoveDocument(t *testing.T) {
 	analyzer := New()
-	
+
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
+
 	// Verify document exists
 	if doc := analyzer.GetDocument("test.crl"); doc == nil {
 		t.Error("Expected document to exist before removal")
 	}
-	
+
 	analyzer.RemoveDocument("test.crl")
-	
+
 	// Verify document is removed
 	if doc := analyzer.GetDocument("test.crl"); doc != nil {
 		t.Error("Expected document to be removed")
@@ -212,13 +212,13 @@ func TestAnalyzer_RemoveDocument(t *testing.T) {
 
 func TestAnalyzer_GetCompletions_Keywords(t *testing.T) {
 	analyzer := New()
-	
+
 	content := "sp"
 	analyzer.UpdateDocument("test.crl", content, nil)
-	
+
 	position := protocol.Position{Line: 0, Character: 2}
 	completions := analyzer.GetCompletions("test.crl", position)
-	
+
 	// Should find "spell" keyword
 	found := false
 	for _, completion := range completions {
@@ -233,7 +233,7 @@ func TestAnalyzer_GetCompletions_Keywords(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Error("Expected 'spell' keyword in completions")
 	}
@@ -241,19 +241,19 @@ func TestAnalyzer_GetCompletions_Keywords(t *testing.T) {
 
 func TestAnalyzer_GetCompletions_Methods(t *testing.T) {
 	analyzer := New()
-	
+
 	content := `
 spell test():
     File.`
 	analyzer.UpdateDocument("test.crl", content, nil)
-	
+
 	position := protocol.Position{Line: 2, Character: 9}
 	completions := analyzer.GetCompletions("test.crl", position)
-	
+
 	if len(completions) == 0 {
 		t.Error("Expected completions for File grimoire")
 	}
-	
+
 	expectedMethods := []string{"read", "write", "append", "exists", "open"}
 	for _, method := range expectedMethods {
 		found := false
@@ -274,13 +274,13 @@ spell test():
 
 func TestAnalyzer_GetCompletions_Builtins(t *testing.T) {
 	analyzer := New()
-	
+
 	content := "pr"
 	analyzer.UpdateDocument("test.crl", content, nil)
-	
+
 	position := protocol.Position{Line: 0, Character: 2}
 	completions := analyzer.GetCompletions("test.crl", position)
-	
+
 	// Should find "print" builtin
 	found := false
 	for _, completion := range completions {
@@ -292,7 +292,7 @@ func TestAnalyzer_GetCompletions_Builtins(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Error("Expected 'print' builtin in completions")
 	}
@@ -301,10 +301,10 @@ func TestAnalyzer_GetCompletions_Builtins(t *testing.T) {
 func TestAnalyzer_GetCompletions_UserSymbols(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
+
 	position := protocol.Position{Line: 0, Character: 3}
 	completions := analyzer.GetCompletions("test.crl", position)
-	
+
 	// Should find "greet" function
 	found := false
 	for _, completion := range completions {
@@ -316,7 +316,7 @@ func TestAnalyzer_GetCompletions_UserSymbols(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Error("Expected 'greet' function in completions")
 	}
@@ -325,14 +325,14 @@ func TestAnalyzer_GetCompletions_UserSymbols(t *testing.T) {
 func TestAnalyzer_GetHover_Builtin(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", "print('test')", nil)
-	
+
 	position := protocol.Position{Line: 0, Character: 2}
 	hover := analyzer.GetHover("test.crl", position)
-	
+
 	if hover == nil {
 		t.Error("Expected hover information for 'print' builtin")
 	}
-	
+
 	if !strings.Contains(hover.Contents.(string), "print") {
 		t.Error("Expected hover to contain 'print' information")
 	}
@@ -341,25 +341,25 @@ func TestAnalyzer_GetHover_Builtin(t *testing.T) {
 func TestAnalyzer_GetHover_UserFunction(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
-	position := protocol.Position{Line: 6, Character: 6} // "greet" function
+
+	position := protocol.Position{Line: 8, Character: 6} // "greet" function
 	hover := analyzer.GetHover("test.crl", position)
-	
+
 	if hover == nil {
 		t.Error("Expected hover information for 'greet' function")
 		return
 	}
-	
+
 	if hover.Contents == nil {
 		t.Error("Expected hover contents to be present")
 		return
 	}
-	
+
 	content := hover.Contents.(string)
 	if !strings.Contains(content, "greet") {
 		t.Error("Expected hover to contain 'greet' information")
 	}
-	
+
 	if !strings.Contains(content, "Greet someone by name") {
 		t.Error("Expected hover to contain docstring")
 	}
@@ -368,25 +368,49 @@ func TestAnalyzer_GetHover_UserFunction(t *testing.T) {
 func TestAnalyzer_GetHover_Grimoire(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
-	position := protocol.Position{Line: 13, Character: 5} // "Person" grimoire
+
+	// Debug: check what's at line 17
+	lines := strings.Split(testCarrionCode, "\n")
+	if len(lines) > 17 {
+		t.Logf("Line 16: '%s'", lines[16])
+		t.Logf("Line 17: '%s'", lines[17])
+		t.Logf("Line 18: '%s'", lines[18])
+
+		if len(lines[17]) > 5 {
+			t.Logf("Character at position 5 on line 17: '%c'", lines[17][5])
+		}
+	}
+
+	position := protocol.Position{Line: 16, Character: 5} // "Person" grimoire
+	word := analyzer.getWordAtPosition(testCarrionCode, position)
+	t.Logf("Word at position (16, 5): '%s'", word)
+
+	// Check if document symbols were parsed
+	doc := analyzer.documents["test.crl"]
+	if doc != nil && doc.Symbols != nil {
+		t.Logf("Number of grimoires found: %d", len(doc.Symbols.Grimoires))
+		for name := range doc.Symbols.Grimoires {
+			t.Logf("  Grimoire: %s", name)
+		}
+	}
+
 	hover := analyzer.GetHover("test.crl", position)
-	
+
 	if hover == nil {
 		t.Error("Expected hover information for 'Person' grimoire")
 		return
 	}
-	
+
 	if hover.Contents == nil {
 		t.Error("Expected hover contents to be present")
 		return
 	}
-	
+
 	content := hover.Contents.(string)
 	if !strings.Contains(content, "Person") {
 		t.Error("Expected hover to contain 'Person' information")
 	}
-	
+
 	if !strings.Contains(content, "Grimoire") {
 		t.Error("Expected hover to indicate it's a grimoire")
 	}
@@ -395,14 +419,14 @@ func TestAnalyzer_GetHover_Grimoire(t *testing.T) {
 func TestAnalyzer_GetDefinition(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
-	position := protocol.Position{Line: 6, Character: 6} // "greet" function
+
+	position := protocol.Position{Line: 8, Character: 6} // "greet" function
 	locations := analyzer.GetDefinition("test.crl", position)
-	
+
 	if len(locations) == 0 {
 		t.Error("Expected definition location for 'greet' function")
 	}
-	
+
 	if locations[0].URI != "test.crl" {
 		t.Error("Expected definition location to be in same file")
 	}
@@ -411,17 +435,17 @@ func TestAnalyzer_GetDefinition(t *testing.T) {
 func TestAnalyzer_GetDocumentSymbols(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
+
 	symbols := analyzer.GetDocumentSymbols("test.crl")
-	
+
 	if len(symbols) == 0 {
 		t.Error("Expected document symbols to be found")
 	}
-	
+
 	// Check for grimoires
 	foundPerson := false
 	foundEmployee := false
-	
+
 	for _, symbol := range symbols {
 		if symbol.Name == "Person" && symbol.Kind == protocol.SymbolKindClass {
 			foundPerson = true
@@ -434,11 +458,11 @@ func TestAnalyzer_GetDocumentSymbols(t *testing.T) {
 			foundEmployee = true
 		}
 	}
-	
+
 	if !foundPerson {
 		t.Error("Expected Person grimoire in document symbols")
 	}
-	
+
 	if !foundEmployee {
 		t.Error("Expected Employee grimoire in document symbols")
 	}
@@ -447,17 +471,17 @@ func TestAnalyzer_GetDocumentSymbols(t *testing.T) {
 func TestAnalyzer_GetSemanticTokens(t *testing.T) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", "spell test(): return 42", nil)
-	
+
 	tokens := analyzer.GetSemanticTokens("test.crl")
-	
+
 	if tokens == nil {
 		t.Error("Expected semantic tokens to be generated")
 	}
-	
+
 	if len(tokens.Data) == 0 {
 		t.Error("Expected semantic token data to be present")
 	}
-	
+
 	// Data should be in groups of 5: [deltaLine, deltaStart, length, tokenType, tokenModifiers]
 	if len(tokens.Data)%5 != 0 {
 		t.Error("Expected semantic token data to be in groups of 5")
@@ -466,7 +490,7 @@ func TestAnalyzer_GetSemanticTokens(t *testing.T) {
 
 func TestAnalyzer_InferType(t *testing.T) {
 	analyzer := New()
-	
+
 	tests := []struct {
 		name     string
 		content  string
@@ -481,12 +505,12 @@ func TestAnalyzer_InferType(t *testing.T) {
 		{"tuple", "(1, 2)", "tuple"},
 		{"none", "None", "None"},
 	}
-	
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			content := "x = " + test.content
 			doc := analyzer.UpdateDocument("test.crl", content, nil)
-			
+
 			if variable, exists := doc.Symbols.Variables["x"]; exists {
 				if variable.Type != test.expected {
 					t.Errorf("Expected type %s, got %s for %s", test.expected, variable.Type, test.content)
@@ -500,21 +524,21 @@ func TestAnalyzer_InferType(t *testing.T) {
 
 func TestAnalyzer_ExtractParameters(t *testing.T) {
 	analyzer := New()
-	
+
 	content := `
 spell test_params(name: string, age: int = 25, active: bool):
     return name
 `
-	
+
 	doc := analyzer.UpdateDocument("test.crl", content, nil)
-	
+
 	if spell, exists := doc.Symbols.Spells["test_params"]; exists {
 		params := spell.Parameters
-		
+
 		if len(params) != 3 {
 			t.Errorf("Expected 3 parameters, got %d", len(params))
 		}
-		
+
 		// Check first parameter
 		if params[0].Name != "name" {
 			t.Errorf("Expected first parameter to be 'name', got %s", params[0].Name)
@@ -522,7 +546,7 @@ spell test_params(name: string, age: int = 25, active: bool):
 		if params[0].TypeHint != "string" {
 			t.Errorf("Expected first parameter type to be 'string', got %s", params[0].TypeHint)
 		}
-		
+
 		// Check second parameter with default
 		if params[1].Name != "age" {
 			t.Errorf("Expected second parameter to be 'age', got %s", params[1].Name)
@@ -537,9 +561,9 @@ spell test_params(name: string, age: int = 25, active: bool):
 
 func TestAnalyzer_getWordAtPosition(t *testing.T) {
 	analyzer := New()
-	
+
 	content := "spell greet(name):\n    return name"
-	
+
 	tests := []struct {
 		line      int
 		character int
@@ -548,18 +572,18 @@ func TestAnalyzer_getWordAtPosition(t *testing.T) {
 		{0, 0, "spell"},
 		{0, 6, "greet"},
 		{0, 12, "name"},
-		{1, 11, "return"},
-		{1, 18, "name"},
+		{1, 4, "return"},
+		{1, 11, "name"},
 	}
-	
+
 	for _, test := range tests {
 		word := analyzer.getWordAtPosition(content, protocol.Position{
 			Line:      test.line,
 			Character: test.character,
 		})
-		
+
 		if word != test.expected {
-			t.Errorf("Expected word '%s' at position (%d, %d), got '%s'", 
+			t.Errorf("Expected word '%s' at position (%d, %d), got '%s'",
 				test.expected, test.line, test.character, word)
 		}
 	}
@@ -567,16 +591,16 @@ func TestAnalyzer_getWordAtPosition(t *testing.T) {
 
 func TestAnalyzer_formatParameters(t *testing.T) {
 	analyzer := New()
-	
+
 	params := []Parameter{
 		{Name: "name", TypeHint: "string"},
 		{Name: "age", TypeHint: "int", DefaultValue: "25"},
 		{Name: "active", TypeHint: "bool"},
 	}
-	
+
 	result := analyzer.formatParameters(params)
 	expected := "name: string, age: int = 25, active: bool"
-	
+
 	if result != expected {
 		t.Errorf("Expected '%s', got '%s'", expected, result)
 	}
@@ -590,15 +614,15 @@ func TestAnalyzer_mapTokenToSemanticType(t *testing.T) {
 
 func TestNewWorkspace(t *testing.T) {
 	workspace := NewWorkspace("/test/path")
-	
+
 	if workspace == nil {
 		t.Fatal("Expected workspace to be created")
 	}
-	
+
 	if workspace.RootPath != "/test/path" {
 		t.Errorf("Expected root path to be '/test/path', got %s", workspace.RootPath)
 	}
-	
+
 	if workspace.Documents == nil {
 		t.Error("Expected documents map to be initialized")
 	}
@@ -607,7 +631,7 @@ func TestNewWorkspace(t *testing.T) {
 // Benchmark tests for performance
 func BenchmarkAnalyzer_UpdateDocument(b *testing.B) {
 	analyzer := New()
-	
+
 	for i := 0; i < b.N; i++ {
 		analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
 	}
@@ -616,9 +640,9 @@ func BenchmarkAnalyzer_UpdateDocument(b *testing.B) {
 func BenchmarkAnalyzer_GetCompletions(b *testing.B) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
+
 	position := protocol.Position{Line: 2, Character: 9}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		analyzer.GetCompletions("test.crl", position)
@@ -628,9 +652,9 @@ func BenchmarkAnalyzer_GetCompletions(b *testing.B) {
 func BenchmarkAnalyzer_GetHover(b *testing.B) {
 	analyzer := New()
 	analyzer.UpdateDocument("test.crl", testCarrionCode, nil)
-	
+
 	position := protocol.Position{Line: 6, Character: 6}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		analyzer.GetHover("test.crl", position)

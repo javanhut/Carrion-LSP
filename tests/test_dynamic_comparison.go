@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -10,7 +13,7 @@ import (
 
 func main() {
 	fmt.Println("=== Dynamic Loading vs Static Comparison ===\n")
-	
+
 	// Create analyzer with dynamic loading
 	a := analyzer.New()
 
@@ -36,12 +39,12 @@ func main() {
 		fmt.Printf("  - %s\n", method)
 	}
 
-	// Test array methods  
+	// Test array methods
 	code2 := `spell test():
     numbers = [1, 2, 3]
     numbers.`
 	a.UpdateDocument("test.crl", code2, nil)
-	
+
 	fmt.Println("\nARRAY METHODS (Dynamically Loaded):")
 	completions = a.GetCompletions("test.crl", protocol.Position{Line: 2, Character: 12})
 	var arrayMethods []string
@@ -57,7 +60,7 @@ func main() {
 	code3 := `spell test():
     result = `
 	a.UpdateDocument("test.crl", code3, nil)
-	
+
 	fmt.Println("\nBUILT-IN FUNCTIONS (Dynamically Loaded):")
 	completions = a.GetCompletions("test.crl", protocol.Position{Line: 1, Character: 13})
 	var builtinFunctions []string

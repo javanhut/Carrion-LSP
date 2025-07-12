@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -12,7 +15,7 @@ import (
 func main() {
 	fmt.Println("🚀 COMPLETE DYNAMIC CARRION LSP SYSTEM DEMO")
 	fmt.Println(strings.Repeat("=", 50))
-	
+
 	// Create analyzer with full dynamic loading
 	a := analyzer.New()
 
@@ -29,7 +32,7 @@ func main() {
 	}
 
 	fmt.Println("\n🧬 STEP 2: Test Dynamic Runtime Grimoire Loading")
-	
+
 	// Test different types and their methods
 	testCases := []struct {
 		name     string
@@ -46,7 +49,7 @@ func main() {
 			variable: "text",
 		},
 		{
-			name:     "Array Methods", 
+			name:     "Array Methods",
 			code:     "spell test():\n    items = [1, 2, 3]\n    items.",
 			line:     2,
 			char:     10,
@@ -63,14 +66,14 @@ func main() {
 
 	for _, testCase := range testCases {
 		fmt.Printf("\n  🔍 Testing %s:\n", testCase.name)
-		
+
 		// Update document
 		a.UpdateDocument("test.crl", testCase.code, nil)
-		
+
 		// Get completions
 		position := protocol.Position{Line: testCase.line, Character: testCase.char}
 		completions := a.GetCompletions("test.crl", position)
-		
+
 		// Show methods
 		var methods []string
 		for _, completion := range completions {
@@ -79,17 +82,17 @@ func main() {
 			}
 		}
 		sort.Strings(methods)
-		
+
 		fmt.Printf("     📋 %d methods available: %v\n", len(methods), methods)
 	}
 
 	fmt.Println("\n⚡ STEP 3: Test Built-in Function Discovery")
-	
+
 	// Test built-in functions - use a position where general completion will trigger
 	code := "spell test():\n    result = p"
 	a.UpdateDocument("test.crl", code, nil)
 	completions := a.GetCompletions("test.crl", protocol.Position{Line: 1, Character: 14})
-	
+
 	var builtins []string
 	for _, completion := range completions {
 		if completion.Kind == protocol.CompletionItemKindFunction {
@@ -100,7 +103,7 @@ func main() {
 	fmt.Printf("  📚 %d built-in functions available: %v\n", len(builtins), builtins)
 
 	fmt.Println("\n🏗️ STEP 4: Test Grimoire Class Discovery")
-	
+
 	var grimoires []string
 	for _, completion := range completions {
 		if completion.Kind == protocol.CompletionItemKindClass {
@@ -111,21 +114,21 @@ func main() {
 	fmt.Printf("  🔮 %d grimoire classes available: %v\n", len(grimoires), grimoires)
 
 	fmt.Println("\n🔄 STEP 5: Test Dynamic Refresh")
-	
+
 	// Test the refresh capability
 	oldCount := len(completions)
 	a.RefreshDynamicData()
-	
+
 	// Get completions again
 	completions = a.GetCompletions("test.crl", protocol.Position{Line: 1, Character: 14})
 	newCount := len(completions)
-	
+
 	fmt.Printf("  ♻️  Before refresh: %d completions\n", oldCount)
 	fmt.Printf("  ♻️  After refresh: %d completions\n", newCount)
 	fmt.Println("     ✅ Dynamic refresh working correctly!")
 
 	fmt.Println("\n🎯 STEP 6: Test Advanced Type Inference")
-	
+
 	// Test constructor call type inference
 	advancedCode := `grim CustomClass:
     init(name: string):
@@ -137,17 +140,17 @@ func main() {
 spell test():
     instance = CustomClass("test")
     instance.`
-    
+
 	a.UpdateDocument("advanced.crl", advancedCode, nil)
 	completions = a.GetCompletions("advanced.crl", protocol.Position{Line: 8, Character: 13})
-	
+
 	var customMethods []string
 	for _, completion := range completions {
 		if completion.Kind == protocol.CompletionItemKindMethod {
 			customMethods = append(customMethods, completion.Label)
 		}
 	}
-	
+
 	fmt.Printf("  🎨 Custom grimoire methods: %v\n", customMethods)
 	if len(customMethods) > 0 {
 		fmt.Println("     ✅ Constructor type inference working!")

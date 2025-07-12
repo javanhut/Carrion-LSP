@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -9,21 +12,21 @@ import (
 
 func main() {
 	fmt.Println("Debug: General completion")
-	
+
 	a := analyzer.New()
 
 	// Test general completion
 	code := "spell test():\n    result = p"
 	a.UpdateDocument("test.crl", code, nil)
-	
+
 	// Check what built-ins are loaded
 	fmt.Printf("Built-ins loaded in analyzer: %d\n", len(a.GetBuiltins()))
 	for name := range a.GetBuiltins() {
 		fmt.Printf("  - %s\n", name)
 		break // Just show first one as example
 	}
-	
-	// Check what grimoires are loaded  
+
+	// Check what grimoires are loaded
 	fmt.Printf("Grimoires loaded in analyzer: %d\n", len(a.GetGrimoires()))
 	for name := range a.GetGrimoires() {
 		fmt.Printf("  - %s\n", name)

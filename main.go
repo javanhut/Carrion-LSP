@@ -7,8 +7,8 @@ import (
 	"net"
 	"os"
 
-	"github.com/sourcegraph/jsonrpc2"
 	"github.com/javanhut/CarrionLSP/internal/server"
+	"github.com/sourcegraph/jsonrpc2"
 )
 
 // stdioPipe combines stdin and stdout into a ReadWriteCloser

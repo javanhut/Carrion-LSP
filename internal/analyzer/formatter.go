@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/javanhut/CarrionLSP/internal/protocol"
 	"github.com/javanhut/TheCarrionLanguage/src/ast"
 	"github.com/javanhut/TheCarrionLanguage/src/lexer"
 	"github.com/javanhut/TheCarrionLanguage/src/parser"
-	"github.com/javanhut/CarrionLSP/internal/protocol"
 )
 
 // CarrionFormatter handles formatting of Carrion code according to language conventions
@@ -98,7 +98,7 @@ func (f *CarrionFormatter) formatStatement(stmt ast.Statement) string {
 	if stmt == nil {
 		return ""
 	}
-	
+
 	switch node := stmt.(type) {
 	case *ast.FunctionDefinition:
 		return f.formatFunctionDefinition(node)
@@ -138,9 +138,9 @@ func (f *CarrionFormatter) formatFunctionDefinition(node *ast.FunctionDefinition
 	if node == nil {
 		return ""
 	}
-	
+
 	var parts []string
-	
+
 	// Add docstring if present and it's the first statement
 	if node.DocString != nil {
 		parts = append(parts, f.indent()+fmt.Sprintf(`"""%s"""`, node.DocString.Value))
@@ -151,12 +151,12 @@ func (f *CarrionFormatter) formatFunctionDefinition(node *ast.FunctionDefinition
 	if node.Parameters != nil {
 		params = f.formatParameters(node.Parameters)
 	}
-	
+
 	var name string
 	if node.Name != nil {
 		name = node.Name.Value
 	}
-	
+
 	signature := fmt.Sprintf("spell %s(%s):", name, params)
 	parts = append(parts, f.indent()+signature)
 
@@ -174,9 +174,9 @@ func (f *CarrionFormatter) formatInitMethod(node *ast.FunctionDefinition) string
 	if node == nil {
 		return ""
 	}
-	
+
 	var parts []string
-	
+
 	// Add docstring if present
 	if node.DocString != nil {
 		parts = append(parts, f.indent()+fmt.Sprintf(`"""%s"""`, node.DocString.Value))
@@ -187,7 +187,7 @@ func (f *CarrionFormatter) formatInitMethod(node *ast.FunctionDefinition) string
 	if node.Parameters != nil {
 		params = f.formatParameters(node.Parameters)
 	}
-	
+
 	signature := fmt.Sprintf("init(%s):", params)
 	parts = append(parts, f.indent()+signature)
 
@@ -238,7 +238,7 @@ func (f *CarrionFormatter) formatAssignStatement(node *ast.AssignStatement) stri
 	if node == nil {
 		return ""
 	}
-	
+
 	name := f.formatExpression(node.Name)
 	value := f.formatExpression(node.Value)
 	operator := node.Operator
@@ -276,7 +276,7 @@ func (f *CarrionFormatter) formatIfStatement(node *ast.IfStatement) string {
 	for _, branch := range node.OtherwiseBranches {
 		branchCondition := f.formatExpression(branch.Condition)
 		parts = append(parts, f.indent()+fmt.Sprintf("otherwise %s:", branchCondition))
-		
+
 		f.indentLevel++
 		branchBody := f.formatBlockStatement(branch.Consequence)
 		parts = append(parts, branchBody...)
@@ -409,15 +409,15 @@ func (f *CarrionFormatter) formatWithStatement(node *ast.WithStatement) string {
 // formatImportStatement formats import statements
 func (f *CarrionFormatter) formatImportStatement(node *ast.ImportStatement) string {
 	importStmt := f.indent() + "import "
-	
+
 	if node.FilePath != nil {
 		importStmt += fmt.Sprintf(`"%s"`, node.FilePath.Value)
 	}
-	
+
 	if node.ClassName != nil {
 		importStmt += fmt.Sprintf(".%s", node.ClassName.Value)
 	}
-	
+
 	if node.Alias != nil {
 		importStmt += fmt.Sprintf(" as %s", node.Alias.Value)
 	}
@@ -436,7 +436,7 @@ func (f *CarrionFormatter) formatMatchStatement(node *ast.MatchStatement) string
 	for _, caseClause := range node.Cases {
 		condition := f.formatExpression(caseClause.Condition)
 		parts = append(parts, f.indent()+fmt.Sprintf("case %s:", condition))
-		
+
 		f.indentLevel++
 		caseBody := f.formatBlockStatement(caseClause.Body)
 		parts = append(parts, caseBody...)

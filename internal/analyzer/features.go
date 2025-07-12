@@ -23,7 +23,7 @@ func (a *Analyzer) GetCompletions(uri string, position protocol.Position) []prot
 	// Get text at cursor position to determine context
 	line := position.Line
 	character := position.Character
-	
+
 	lines := strings.Split(doc.Content, "\n")
 	if line >= len(lines) {
 		return completions
@@ -58,16 +58,16 @@ func (a *Analyzer) getMethodCompletions(doc *Document, prefix string) []protocol
 	}
 
 	objectName := parts[len(parts)-1]
-	
+
 	// Check if it's a known built-in grimoire (like File, OS, Time)
 	if grimoire, exists := a.carriongGrimoires[objectName]; exists {
 		for spellName, spell := range grimoire.Spells {
 			completions = append(completions, protocol.CompletionItem{
-				Label:  spellName,
-				Kind:   protocol.CompletionItemKindMethod,
-				Detail: fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatParameters(spell.Parameters), spell.ReturnType),
-				Documentation: spell.Description,
-				InsertText: fmt.Sprintf("%s(${1})", spell.Name),
+				Label:            spellName,
+				Kind:             protocol.CompletionItemKindMethod,
+				Detail:           fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatParameters(spell.Parameters), spell.ReturnType),
+				Documentation:    spell.Description,
+				InsertText:       fmt.Sprintf("%s(${1})", spell.Name),
 				InsertTextFormat: protocol.InsertTextFormatSnippet,
 			})
 		}
@@ -79,25 +79,25 @@ func (a *Analyzer) getMethodCompletions(doc *Document, prefix string) []protocol
 		if grimoire, exists := doc.Symbols.Grimoires[variable.Type]; exists {
 			for spellName, spell := range grimoire.Spells {
 				completions = append(completions, protocol.CompletionItem{
-					Label:  spellName,
-					Kind:   protocol.CompletionItemKindMethod,
-					Detail: fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatSpellParameters(spell.Parameters), spell.ReturnType),
-					Documentation: spell.DocString,
-					InsertText: fmt.Sprintf("%s(${1})", spell.Name),
+					Label:            spellName,
+					Kind:             protocol.CompletionItemKindMethod,
+					Detail:           fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatSpellParameters(spell.Parameters), spell.ReturnType),
+					Documentation:    spell.DocString,
+					InsertText:       fmt.Sprintf("%s(${1})", spell.Name),
 					InsertTextFormat: protocol.InsertTextFormatSnippet,
 				})
 			}
 		}
-		
+
 		// Check built-in grimoires for the variable's type
 		if grimoire, exists := a.carriongGrimoires[variable.Type]; exists {
 			for spellName, spell := range grimoire.Spells {
 				completions = append(completions, protocol.CompletionItem{
-					Label:  spellName,
-					Kind:   protocol.CompletionItemKindMethod,
-					Detail: fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatParameters(spell.Parameters), spell.ReturnType),
-					Documentation: spell.Description,
-					InsertText: fmt.Sprintf("%s(${1})", spell.Name),
+					Label:            spellName,
+					Kind:             protocol.CompletionItemKindMethod,
+					Detail:           fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatParameters(spell.Parameters), spell.ReturnType),
+					Documentation:    spell.Description,
+					InsertText:       fmt.Sprintf("%s(${1})", spell.Name),
 					InsertTextFormat: protocol.InsertTextFormatSnippet,
 				})
 			}
@@ -106,21 +106,21 @@ func (a *Analyzer) getMethodCompletions(doc *Document, prefix string) []protocol
 		// Handle primitive types with their respective grimoires
 		primitiveToGrimoire := map[string]string{
 			"string": "String",
-			"int":    "Integer", 
+			"int":    "Integer",
 			"float":  "Float",
 			"bool":   "Boolean",
 			"array":  "Array",
 		}
-		
+
 		if grimoireName, exists := primitiveToGrimoire[variable.Type]; exists {
 			if grimoire, exists := a.carriongGrimoires[grimoireName]; exists {
 				for spellName, spell := range grimoire.Spells {
 					completions = append(completions, protocol.CompletionItem{
-						Label:  spellName,
-						Kind:   protocol.CompletionItemKindMethod,
-						Detail: fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatParameters(spell.Parameters), spell.ReturnType),
-						Documentation: spell.Description,
-						InsertText: fmt.Sprintf("%s(${1})", spell.Name),
+						Label:            spellName,
+						Kind:             protocol.CompletionItemKindMethod,
+						Detail:           fmt.Sprintf("spell %s(%s) -> %s", spell.Name, a.formatParameters(spell.Parameters), spell.ReturnType),
+						Documentation:    spell.Description,
+						InsertText:       fmt.Sprintf("%s(${1})", spell.Name),
 						InsertTextFormat: protocol.InsertTextFormatSnippet,
 					})
 				}
@@ -154,7 +154,7 @@ func (a *Analyzer) getGeneralCompletions(doc *Document, prefix string) []protoco
 		if strings.HasPrefix(keyword, strings.ToLower(matchToken)) {
 			kind := protocol.CompletionItemKindKeyword
 			insertText := keyword
-			
+
 			// Add snippets for structural keywords
 			switch keyword {
 			case "spell":
@@ -172,7 +172,7 @@ func (a *Analyzer) getGeneralCompletions(doc *Document, prefix string) []protoco
 			case "autoclose":
 				insertText = "autoclose ${1:resource} as ${2:var}:\n\t${3:body}"
 			}
-			
+
 			if strings.Contains(insertText, "${") {
 				completions = append(completions, protocol.CompletionItem{
 					Label:            keyword,
@@ -432,7 +432,7 @@ func (a *Analyzer) GetSemanticTokens(uri string) *protocol.SemanticTokens {
 	}
 
 	var data []int
-	
+
 	for _, tok := range doc.Tokens {
 		tokenType := a.mapTokenToSemanticType(tok.Type)
 		if tokenType >= 0 {
@@ -458,7 +458,7 @@ func (a *Analyzer) FormatDocument(uri string, options protocol.FormattingOptions
 
 	// Create formatter with options
 	formatter := NewCarrionFormatter(options)
-	
+
 	// Format the document
 	edits, err := formatter.FormatDocument(doc.Content)
 	if err != nil {
@@ -547,21 +547,21 @@ func isAlphaNumeric(ch rune) bool {
 func (a *Analyzer) extractLastToken(text string) string {
 	// Find the last identifier by working backwards from the end
 	end := len(text)
-	
+
 	// Skip trailing whitespace
 	for end > 0 && (text[end-1] == ' ' || text[end-1] == '\t') {
 		end--
 	}
-	
+
 	if end == 0 {
 		return ""
 	}
-	
+
 	// Find the start of the identifier
 	start := end
 	for start > 0 && (isAlphaNumeric(rune(text[start-1])) || text[start-1] == '_') {
 		start--
 	}
-	
+
 	return text[start:end]
 }

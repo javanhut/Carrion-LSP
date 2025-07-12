@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -20,7 +23,7 @@ func main() {
 
 	// Test completion right after the dot
 	position := protocol.Position{
-		Line:      2, // message.
+		Line:      2,  // message.
 		Character: 12, // Right after the dot
 	}
 

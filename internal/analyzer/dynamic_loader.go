@@ -21,7 +21,7 @@ type DynamicLoader struct {
 // NewDynamicLoader creates a new dynamic loader with a Carrion environment
 func NewDynamicLoader() *DynamicLoader {
 	env := object.NewEnvironment()
-	
+
 	// Load the munin standard library (includes all grimoires and modules)
 	err := evaluator.LoadMuninStdlib(env)
 	if err != nil {
@@ -45,7 +45,7 @@ func NewDynamicLoader() *DynamicLoader {
 func (dl *DynamicLoader) loadBuiltins() {
 	// Get all built-ins from the evaluator
 	runtimeBuiltins := evaluator.GetBuiltins()
-	
+
 	for name := range runtimeBuiltins {
 		// Extract function information
 		builtinInfo := &BuiltinInfo{
@@ -55,7 +55,7 @@ func (dl *DynamicLoader) loadBuiltins() {
 			Parameters:  dl.extractBuiltinParameters(name),
 			ReturnType:  dl.inferBuiltinReturnType(name),
 		}
-		
+
 		dl.builtins[name] = builtinInfo
 	}
 
@@ -67,7 +67,7 @@ func (dl *DynamicLoader) loadBuiltins() {
 func (dl *DynamicLoader) loadEnvironmentBuiltins() {
 	// Get all symbols from the environment
 	envStore := dl.env.GetStore()
-	
+
 	for name, obj := range envStore {
 		switch typedObj := obj.(type) {
 		case *object.Builtin:
@@ -98,7 +98,7 @@ func (dl *DynamicLoader) loadEnvironmentBuiltins() {
 // loadGrimoires discovers grimoire classes from the runtime environment
 func (dl *DynamicLoader) loadGrimoires() {
 	envStore := dl.env.GetStore()
-	
+
 	for name, obj := range envStore {
 		if grimoire, isGrimoire := obj.(*object.Grimoire); isGrimoire {
 			grimoireInfo := &GrimoireInfo{
@@ -107,7 +107,7 @@ func (dl *DynamicLoader) loadGrimoires() {
 				Spells:      make(map[string]*BuiltinInfo),
 				IsStatic:    grimoire.IsArcane,
 			}
-			
+
 			// Extract spells/methods from the grimoire
 			for spellName, spellFunc := range grimoire.Methods {
 				spell := &BuiltinInfo{
@@ -119,7 +119,7 @@ func (dl *DynamicLoader) loadGrimoires() {
 				}
 				grimoireInfo.Spells[spellName] = spell
 			}
-			
+
 			dl.grimoires[name] = grimoireInfo
 		}
 	}
@@ -128,43 +128,43 @@ func (dl *DynamicLoader) loadGrimoires() {
 // getBuiltinDescription provides descriptions for built-in functions
 func (dl *DynamicLoader) getBuiltinDescription(name string) string {
 	descriptions := map[string]string{
-		"print":      "Print values to output",
-		"input":      "Read user input with optional prompt",
-		"len":        "Get length of strings, arrays, or hashes",
-		"type":       "Get the type of an object",
-		"range":      "Generate a sequence of numbers",
-		"int":        "Convert to integer",
-		"float":      "Convert to float",
-		"str":        "Convert to string",
-		"bool":       "Convert to boolean",
-		"list":       "Convert to array",
-		"open":       "Open a file and return File grimoire instance",
-		"max":        "Find maximum value",
-		"abs":        "Get absolute value",
-		"enumerate":  "Enumerate arrays with indices",
-		"pairs":      "Extract key-value pairs from hashes",
+		"print":     "Print values to output",
+		"input":     "Read user input with optional prompt",
+		"len":       "Get length of strings, arrays, or hashes",
+		"type":      "Get the type of an object",
+		"range":     "Generate a sequence of numbers",
+		"int":       "Convert to integer",
+		"float":     "Convert to float",
+		"str":       "Convert to string",
+		"bool":      "Convert to boolean",
+		"list":      "Convert to array",
+		"open":      "Open a file and return File grimoire instance",
+		"max":       "Find maximum value",
+		"abs":       "Get absolute value",
+		"enumerate": "Enumerate arrays with indices",
+		"pairs":     "Extract key-value pairs from hashes",
 		// Time module functions
-		"time_now":        "Get current Unix timestamp",
-		"time_sleep":      "Sleep for specified duration",
-		"time_format":     "Format timestamp to string",
-		"time_parse":      "Parse time string to timestamp",
-		// File module functions  
-		"file_read":       "Read file content",
-		"file_write":      "Write content to file",
-		"file_exists":     "Check if file exists",
+		"time_now":    "Get current Unix timestamp",
+		"time_sleep":  "Sleep for specified duration",
+		"time_format": "Format timestamp to string",
+		"time_parse":  "Parse time string to timestamp",
+		// File module functions
+		"file_read":   "Read file content",
+		"file_write":  "Write content to file",
+		"file_exists": "Check if file exists",
 		// OS module functions
-		"os_cwd":          "Get current working directory",
-		"os_listdir":      "List directory contents",
-		"os_mkdir":        "Create directory",
-		"os_getenv":       "Get environment variable",
-		"os_run":          "Run system command",
+		"os_cwd":     "Get current working directory",
+		"os_listdir": "List directory contents",
+		"os_mkdir":   "Create directory",
+		"os_getenv":  "Get environment variable",
+		"os_run":     "Run system command",
 		// HTTP module functions
-		"http_get":        "HTTP GET request",
-		"http_post":       "HTTP POST request",
-		"http_put":        "HTTP PUT request",
-		"http_delete":     "HTTP DELETE request",
+		"http_get":    "HTTP GET request",
+		"http_post":   "HTTP POST request",
+		"http_put":    "HTTP PUT request",
+		"http_delete": "HTTP DELETE request",
 	}
-	
+
 	if desc, exists := descriptions[name]; exists {
 		return desc
 	}
@@ -175,7 +175,7 @@ func (dl *DynamicLoader) getBuiltinDescription(name string) string {
 func (dl *DynamicLoader) getGrimoireDescription(name string) string {
 	descriptions := map[string]string{
 		"String":  "String manipulation grimoire",
-		"Array":   "Array manipulation grimoire", 
+		"Array":   "Array manipulation grimoire",
 		"Integer": "Integer operations grimoire",
 		"Float":   "Float operations grimoire",
 		"Boolean": "Boolean operations grimoire",
@@ -183,7 +183,7 @@ func (dl *DynamicLoader) getGrimoireDescription(name string) string {
 		"OS":      "Operating system operations grimoire",
 		"Time":    "Time operations grimoire",
 	}
-	
+
 	if desc, exists := descriptions[name]; exists {
 		return desc
 	}
@@ -223,7 +223,7 @@ func (dl *DynamicLoader) extractBuiltinParameters(name string) []Parameter {
 		"enumerate": {{Name: "array", TypeHint: "array"}},
 		"pairs":     {{Name: "hash", TypeHint: "hash"}},
 	}
-	
+
 	if params, exists := paramMap[name]; exists {
 		return params
 	}
@@ -233,7 +233,7 @@ func (dl *DynamicLoader) extractBuiltinParameters(name string) []Parameter {
 // extractFunctionParameters extracts parameters from a Function object
 func (dl *DynamicLoader) extractFunctionParameters(fn *object.Function) []Parameter {
 	var parameters []Parameter
-	
+
 	if fn.Parameters != nil {
 		for _, param := range fn.Parameters {
 			// Handle different parameter types
@@ -264,7 +264,7 @@ func (dl *DynamicLoader) extractFunctionParameters(fn *object.Function) []Parame
 			}
 		}
 	}
-	
+
 	return parameters
 }
 
@@ -272,13 +272,13 @@ func (dl *DynamicLoader) extractFunctionParameters(fn *object.Function) []Parame
 func (dl *DynamicLoader) inferBuiltinReturnType(name string) string {
 	returnTypes := map[string]string{
 		"print":     "None",
-		"input":     "string", 
+		"input":     "string",
 		"len":       "int",
 		"type":      "string",
 		"range":     "array",
 		"int":       "int",
 		"float":     "float",
-		"str":       "string", 
+		"str":       "string",
 		"bool":      "bool",
 		"list":      "array",
 		"open":      "File",
@@ -287,7 +287,7 @@ func (dl *DynamicLoader) inferBuiltinReturnType(name string) string {
 		"enumerate": "array",
 		"pairs":     "array",
 	}
-	
+
 	if returnType, exists := returnTypes[name]; exists {
 		return returnType
 	}
@@ -324,25 +324,25 @@ func (dl *DynamicLoader) GetGrimoires() map[string]*GrimoireInfo {
 func (dl *DynamicLoader) LoadBifrostPackage(packagePath string) error {
 	// Read the package's main file
 	// This is a placeholder - would need to integrate with bifrost's loading system
-	
+
 	// For now, try to parse and evaluate a .crl file
 	code := fmt.Sprintf(`import "%s"`, packagePath)
-	
+
 	l := lexer.New(code)
 	p := parser.New(l)
 	program := p.ParseProgram()
-	
+
 	if len(p.Errors()) > 0 {
 		return fmt.Errorf("parse errors: %v", p.Errors())
 	}
-	
+
 	// Evaluate in our environment
 	evaluator.Eval(program, dl.env, nil)
-	
+
 	// Reload grimoires and builtins to pick up new definitions
 	dl.loadBuiltins()
 	dl.loadGrimoires()
-	
+
 	return nil
 }
 
@@ -350,7 +350,7 @@ func (dl *DynamicLoader) LoadBifrostPackage(packagePath string) error {
 func (dl *DynamicLoader) RefreshDynamicData() {
 	dl.builtins = make(map[string]*BuiltinInfo)
 	dl.grimoires = make(map[string]*GrimoireInfo)
-	
+
 	dl.loadBuiltins()
 	dl.loadGrimoires()
 }

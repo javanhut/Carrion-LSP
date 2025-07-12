@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -9,26 +12,26 @@ import (
 
 func testKeyword(name, input string) {
 	fmt.Printf("\n=== Testing %s ===\n", name)
-	
+
 	options := protocol.FormattingOptions{
 		TabSize:      4,
 		InsertSpaces: true,
 	}
-	
+
 	formatter := analyzer.NewCarrionFormatter(options)
 	edits, err := formatter.FormatDocument(input)
-	
+
 	if err != nil {
 		fmt.Printf("❌ FAILED: %v\n", err)
 		return
 	}
-	
+
 	if len(edits) == 0 {
 		fmt.Printf("✅ PARSED: No formatting changes needed\n")
 		fmt.Printf("Input: %s\n", input)
 		return
 	}
-	
+
 	result := edits[0].NewText
 	fmt.Printf("✅ FORMATTED:\n%s\n", result)
 }
@@ -55,7 +58,7 @@ func main() {
     else:
         print("small")`)
 
-	// Test match/case  
+	// Test match/case
 	testKeyword("Match/Case", `spell test_match(value):
     match value:
         case 1:

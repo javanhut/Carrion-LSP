@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -10,7 +13,7 @@ import (
 
 func main() {
 	fmt.Println("Debug: Completion context detection")
-	
+
 	a := analyzer.New()
 
 	// Test the exact string completion that was working
@@ -22,7 +25,7 @@ func main() {
 
 	// Test completion at the exact position
 	position := protocol.Position{Line: 2, Character: 12}
-	
+
 	// Debug the prefix extraction
 	lines := strings.Split(code, "\n")
 	if position.Line < len(lines) {
@@ -31,7 +34,7 @@ func main() {
 		if position.Character <= len(currentLine) {
 			prefix = currentLine[:position.Character]
 		}
-		
+
 		fmt.Printf("Current line: '%s'\n", currentLine)
 		fmt.Printf("Prefix: '%s'\n", prefix)
 		fmt.Printf("Has suffix '.': %v\n", strings.HasSuffix(prefix, "."))
@@ -43,11 +46,11 @@ func main() {
 	for _, completion := range completions {
 		fmt.Printf("  - %s (kind=%d): %s\n", completion.Label, completion.Kind, completion.Detail)
 	}
-	
+
 	// Also test general completion (no dot)
 	position2 := protocol.Position{Line: 1, Character: 13}
 	completions2 := a.GetCompletions("test.crl", position2)
-	
+
 	fmt.Printf("\nGeneral completions (no dot) found %d:\n", len(completions2))
 	for i, completion := range completions2 {
 		if i < 5 { // Show first 5

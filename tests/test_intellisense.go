@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -58,7 +61,7 @@ main:
 			expected: []string{"greet", "get_info"},
 		},
 		{
-			name:     "String methods", 
+			name:     "String methods",
 			line:     23, // message.
 			char:     12,
 			expected: []string{"length", "lower", "upper", "split", "contains"},
@@ -76,7 +79,7 @@ main:
 			expected: []string{"abs", "is_even", "is_odd", "to_hex"},
 		},
 		{
-			name:     "Float methods", 
+			name:     "Float methods",
 			line:     26, // ratio.
 			char:     10,
 			expected: []string{"round", "floor", "ceil", "sqrt", "abs"},
@@ -90,29 +93,29 @@ main:
 		{
 			name:     "Built-in grimoires",
 			line:     0, // Global scope
-			char:     0, 
+			char:     0,
 			expected: []string{"File", "OS", "Time", "String", "Array"},
 		},
 	}
 
 	for _, test := range testCompletions {
 		fmt.Printf("\n=== Testing %s ===\n", test.name)
-		
+
 		position := protocol.Position{
 			Line:      test.line,
 			Character: test.char,
 		}
-		
+
 		completions := analyzer.GetCompletions("test.crl", position)
-		
+
 		fmt.Printf("Found %d completions:\n", len(completions))
-		
+
 		found := make(map[string]bool)
 		for _, completion := range completions {
 			found[completion.Label] = true
 			fmt.Printf("  - %s (%s): %s\n", completion.Label, completion.Kind, completion.Detail)
 		}
-		
+
 		// Check if expected completions are present
 		for _, expected := range test.expected {
 			if found[expected] {
@@ -127,7 +130,7 @@ main:
 	fmt.Printf("\n=== Testing Hover Information ===\n")
 	hoverPosition := protocol.Position{Line: 22, Character: 5} // "person" variable
 	hover := analyzer.GetHover("test.crl", hoverPosition)
-	
+
 	if hover != nil {
 		fmt.Printf("Hover info: %s\n", hover.Contents)
 	} else {

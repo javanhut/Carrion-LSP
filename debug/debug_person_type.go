@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -31,7 +34,7 @@ spell test_function():
 		for name, variable := range doc.Symbols.Variables {
 			fmt.Printf("  - %s: %s\n", name, variable.Type)
 		}
-		
+
 		fmt.Printf("Grimoires: %d\n", len(doc.Symbols.Grimoires))
 		for name, grimoire := range doc.Symbols.Grimoires {
 			fmt.Printf("  - %s (spells: %d)\n", name, len(grimoire.Spells))
@@ -43,7 +46,7 @@ spell test_function():
 
 	// Test completion right after the dot
 	position := protocol.Position{
-		Line:      9, // person.
+		Line:      9,  // person.
 		Character: 11, // Right after the dot
 	}
 

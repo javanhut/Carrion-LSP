@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -9,7 +12,7 @@ import (
 
 func main() {
 	fmt.Println("Debug: String method completion with dynamic loading")
-	
+
 	// Create analyzer
 	a := analyzer.New()
 

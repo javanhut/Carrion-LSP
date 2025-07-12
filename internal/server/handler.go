@@ -7,11 +7,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/sourcegraph/jsonrpc2"
-	"github.com/javanhut/TheCarrionLanguage/src/lexer"
-	"github.com/javanhut/TheCarrionLanguage/src/parser"
 	"github.com/javanhut/CarrionLSP/internal/analyzer"
 	"github.com/javanhut/CarrionLSP/internal/protocol"
+	"github.com/javanhut/TheCarrionLanguage/src/lexer"
+	"github.com/javanhut/TheCarrionLanguage/src/parser"
+	"github.com/sourcegraph/jsonrpc2"
 )
 
 type Handler struct {
@@ -101,9 +101,9 @@ func (h *Handler) handleInitialize(ctx context.Context, conn *jsonrpc2.Conn, req
 				TriggerCharacters: []string{".", "(", " "},
 				ResolveProvider:   false,
 			},
-			HoverProvider:         true,
-			DefinitionProvider:    true,
-			ReferencesProvider:    true,
+			HoverProvider:          true,
+			DefinitionProvider:     true,
+			ReferencesProvider:     true,
 			DocumentSymbolProvider: true,
 			SemanticTokensProvider: &protocol.SemanticTokensOptions{
 				Legend: protocol.SemanticTokensLegend{
@@ -234,7 +234,7 @@ func (h *Handler) handleCompletion(ctx context.Context, conn *jsonrpc2.Conn, req
 	}
 
 	completions := h.analyzer.GetCompletions(params.TextDocument.URI, params.Position)
-	
+
 	result := protocol.CompletionList{
 		IsIncomplete: false,
 		Items:        completions,

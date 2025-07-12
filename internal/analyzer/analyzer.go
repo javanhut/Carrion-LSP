@@ -6,19 +6,19 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/javanhut/CarrionLSP/internal/protocol"
 	"github.com/javanhut/TheCarrionLanguage/src/ast"
 	"github.com/javanhut/TheCarrionLanguage/src/lexer"
 	"github.com/javanhut/TheCarrionLanguage/src/parser"
 	"github.com/javanhut/TheCarrionLanguage/src/token"
-	"github.com/javanhut/CarrionLSP/internal/protocol"
 )
 
 type Analyzer struct {
-	mu                sync.RWMutex
-	documents         map[string]*Document
-	builtins          map[string]*BuiltinInfo
-	carriongGrimoires map[string]*GrimoireInfo
-	dynamicLoader     *DynamicLoader
+	mu                 sync.RWMutex
+	documents          map[string]*Document
+	builtins           map[string]*BuiltinInfo
+	carriongGrimoires  map[string]*GrimoireInfo
+	dynamicLoader      *DynamicLoader
 	bifrostIntegration *BifrostIntegration
 }
 
@@ -32,20 +32,20 @@ type Document struct {
 }
 
 type SymbolTable struct {
-	Grimoires map[string]*GrimoireSymbol  // Classes in Carrion
-	Spells    map[string]*SpellSymbol     // Functions/Methods in Carrion
+	Grimoires map[string]*GrimoireSymbol // Classes in Carrion
+	Spells    map[string]*SpellSymbol    // Functions/Methods in Carrion
 	Variables map[string]*VariableSymbol
 	Imports   map[string]*ImportSymbol
 }
 
 type GrimoireSymbol struct {
-	Name        string
-	Range       protocol.Range
-	InitSpell   *SpellSymbol
-	Spells      map[string]*SpellSymbol
-	IsArcane    bool  // Static class
-	Inherits    string
-	DocString   string
+	Name      string
+	Range     protocol.Range
+	InitSpell *SpellSymbol
+	Spells    map[string]*SpellSymbol
+	IsArcane  bool // Static class
+	Inherits  string
+	DocString string
 }
 
 type SpellSymbol struct {
@@ -58,7 +58,7 @@ type SpellSymbol struct {
 	IsPrivate   bool
 	IsProtected bool
 	DocString   string
-	Grimoire    string  // Parent class name
+	Grimoire    string // Parent class name
 }
 
 type Parameter struct {
@@ -352,7 +352,7 @@ func (a *Analyzer) analyzeBlockStatement(block *ast.BlockStatement, symbols *Sym
 			if node.Body != nil {
 				a.analyzeBlockStatement(node.Body, symbols)
 			}
-		// Add more statement types as needed
+			// Add more statement types as needed
 		}
 	}
 }
@@ -372,15 +372,15 @@ func (a *Analyzer) extractParameters(params []ast.Expression) []Parameter {
 				Name:  p.Name.Value,
 				Range: a.astNodeToRange(p),
 			}
-			
+
 			if p.TypeHint != nil {
 				parameter.TypeHint = p.TypeHint.String()
 			}
-			
+
 			if p.DefaultValue != nil {
 				parameter.DefaultValue = p.DefaultValue.String()
 			}
-			
+
 			parameters = append(parameters, parameter)
 		}
 	}
@@ -477,7 +477,7 @@ func (a *Analyzer) getNextVersion(uri string) int {
 func (a *Analyzer) RefreshDynamicData() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	a.dynamicLoader.RefreshDynamicData()
 	a.builtins = a.dynamicLoader.GetBuiltins()
 	a.carriongGrimoires = a.dynamicLoader.GetGrimoires()
@@ -487,16 +487,16 @@ func (a *Analyzer) RefreshDynamicData() {
 func (a *Analyzer) LoadBifrostPackage(packagePath string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	err := a.dynamicLoader.LoadBifrostPackage(packagePath)
 	if err != nil {
 		return err
 	}
-	
+
 	// Update our local caches
 	a.builtins = a.dynamicLoader.GetBuiltins()
 	a.carriongGrimoires = a.dynamicLoader.GetGrimoires()
-	
+
 	return nil
 }
 
@@ -548,7 +548,7 @@ func initializeBuiltins_DEPRECATED() map[string]*BuiltinInfo {
 
 	builtins["input"] = &BuiltinInfo{
 		Name:        "input",
-		Type:        "function", 
+		Type:        "function",
 		Description: "Read user input with optional prompt",
 		Parameters: []Parameter{
 			{Name: "prompt", TypeHint: "string", DefaultValue: "\"\""},
@@ -692,7 +692,7 @@ func initializeBuiltins_DEPRECATED() map[string]*BuiltinInfo {
 
 	builtins["len"] = &BuiltinInfo{
 		Name:        "len",
-		Type:        "function", 
+		Type:        "function",
 		Description: "Get length of collection",
 		Parameters: []Parameter{
 			{Name: "obj", TypeHint: "any"},
@@ -782,7 +782,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	stringSpells["split"] = &BuiltinInfo{Name: "split", Type: "method", Description: "Split string by separator", Parameters: []Parameter{{Name: "separator", TypeHint: "string"}}, ReturnType: "array"}
 	stringSpells["join"] = &BuiltinInfo{Name: "join", Type: "method", Description: "Join array of strings", Parameters: []Parameter{{Name: "string_list", TypeHint: "array"}}, ReturnType: "string"}
 	stringSpells["strip"] = &BuiltinInfo{Name: "strip", Type: "method", Description: "Remove characters from ends", Parameters: []Parameter{{Name: "characters", TypeHint: "string", DefaultValue: "\" \""}}, ReturnType: "string"}
-	
+
 	grimoires["String"] = &GrimoireInfo{
 		Name:        "String",
 		Description: "String manipulation grimoire",
@@ -790,7 +790,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 		IsStatic:    false,
 	}
 
-	// Array grimoire  
+	// Array grimoire
 	arraySpells := make(map[string]*BuiltinInfo)
 	arraySpells["length"] = &BuiltinInfo{Name: "length", Type: "method", Description: "Get array length", ReturnType: "int"}
 	arraySpells["append"] = &BuiltinInfo{Name: "append", Type: "method", Description: "Add element to end", Parameters: []Parameter{{Name: "value", TypeHint: "any"}}, ReturnType: "None"}
@@ -806,7 +806,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	arraySpells["slice"] = &BuiltinInfo{Name: "slice", Type: "method", Description: "Extract subarray", Parameters: []Parameter{{Name: "start", TypeHint: "int"}, {Name: "end", TypeHint: "int"}}, ReturnType: "array"}
 	arraySpells["reverse"] = &BuiltinInfo{Name: "reverse", Type: "method", Description: "Create reversed copy", ReturnType: "array"}
 	arraySpells["sort"] = &BuiltinInfo{Name: "sort", Type: "method", Description: "Create sorted copy", ReturnType: "array"}
-	
+
 	grimoires["Array"] = &GrimoireInfo{
 		Name:        "Array",
 		Description: "Array manipulation grimoire",
@@ -824,7 +824,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	integerSpells["is_even"] = &BuiltinInfo{Name: "is_even", Type: "method", Description: "Check if even", ReturnType: "bool"}
 	integerSpells["is_odd"] = &BuiltinInfo{Name: "is_odd", Type: "method", Description: "Check if odd", ReturnType: "bool"}
 	integerSpells["is_prime"] = &BuiltinInfo{Name: "is_prime", Type: "method", Description: "Check if prime number", ReturnType: "bool"}
-	
+
 	grimoires["Integer"] = &GrimoireInfo{
 		Name:        "Integer",
 		Description: "Integer operations grimoire",
@@ -843,7 +843,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	floatSpells["sin"] = &BuiltinInfo{Name: "sin", Type: "method", Description: "Sine (Taylor series)", ReturnType: "float"}
 	floatSpells["cos"] = &BuiltinInfo{Name: "cos", Type: "method", Description: "Cosine (Taylor series)", ReturnType: "float"}
 	floatSpells["is_integer"] = &BuiltinInfo{Name: "is_integer", Type: "method", Description: "Check if whole number", ReturnType: "bool"}
-	
+
 	grimoires["Float"] = &GrimoireInfo{
 		Name:        "Float",
 		Description: "Float operations grimoire",
@@ -858,10 +858,10 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	booleanSpells["and_with"] = &BuiltinInfo{Name: "and_with", Type: "method", Description: "Logical AND", Parameters: []Parameter{{Name: "other", TypeHint: "bool"}}, ReturnType: "bool"}
 	booleanSpells["or_with"] = &BuiltinInfo{Name: "or_with", Type: "method", Description: "Logical OR", Parameters: []Parameter{{Name: "other", TypeHint: "bool"}}, ReturnType: "bool"}
 	booleanSpells["xor_with"] = &BuiltinInfo{Name: "xor_with", Type: "method", Description: "Logical XOR", Parameters: []Parameter{{Name: "other", TypeHint: "bool"}}, ReturnType: "bool"}
-	
+
 	grimoires["Boolean"] = &GrimoireInfo{
 		Name:        "Boolean",
-		Description: "Boolean operations grimoire", 
+		Description: "Boolean operations grimoire",
 		Spells:      booleanSpells,
 		IsStatic:    false,
 	}
@@ -928,7 +928,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	osSpells := make(map[string]*BuiltinInfo)
 	osSpells["cwd"] = &BuiltinInfo{
 		Name:        "cwd",
-		Type:        "method", 
+		Type:        "method",
 		Description: "Get current working directory",
 		Parameters:  []Parameter{},
 		ReturnType:  "string",
@@ -936,7 +936,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	osSpells["listdir"] = &BuiltinInfo{
 		Name:        "listdir",
 		Type:        "method",
-		Description: "List directory contents", 
+		Description: "List directory contents",
 		Parameters: []Parameter{
 			{Name: "path", TypeHint: "string"},
 		},
@@ -1008,7 +1008,7 @@ func initializeCarrionGrimoires_DEPRECATED() map[string]*GrimoireInfo {
 	timeSpells["date"] = &BuiltinInfo{Name: "date", Type: "method", Description: "Get date components [year, month, day]", Parameters: []Parameter{{Name: "timestamp", TypeHint: "int"}}, ReturnType: "array"}
 	timeSpells["add_duration"] = &BuiltinInfo{Name: "add_duration", Type: "method", Description: "Add duration to timestamp", Parameters: []Parameter{{Name: "timestamp", TypeHint: "int"}, {Name: "seconds", TypeHint: "int"}}, ReturnType: "int"}
 	timeSpells["diff"] = &BuiltinInfo{Name: "diff", Type: "method", Description: "Calculate time difference", Parameters: []Parameter{{Name: "timestamp1", TypeHint: "int"}, {Name: "timestamp2", TypeHint: "int"}}, ReturnType: "int"}
-	
+
 	grimoires["Time"] = &GrimoireInfo{
 		Name:        "Time",
 		Description: "Time operations grimoire",

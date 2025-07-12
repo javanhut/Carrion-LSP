@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -24,12 +27,12 @@ func main() {
 		for name, variable := range doc.Symbols.Variables {
 			fmt.Printf("  - %s: %s\n", name, variable.Type)
 		}
-		
+
 		fmt.Printf("Spells: %d\n", len(doc.Symbols.Spells))
 		for name := range doc.Symbols.Spells {
 			fmt.Printf("  - %s\n", name)
 		}
-		
+
 		fmt.Printf("Grimoires: %d\n", len(doc.Symbols.Grimoires))
 		for name := range doc.Symbols.Grimoires {
 			fmt.Printf("  - %s\n", name)
@@ -40,7 +43,7 @@ func main() {
 
 	// Test completion right after the dot
 	position := protocol.Position{
-		Line:      2, // message.
+		Line:      2,  // message.
 		Character: 12, // Right after the dot
 	}
 

@@ -33,22 +33,133 @@ A feature-rich Language Server Protocol implementation for the [Carrion Programm
 
 ### Prerequisites
 
-- Go 1.21 or later
-- [TheCarrionLanguage](https://github.com/javanhut/TheCarrionLanguage) runtime installed
-- Git
+#### Required Dependencies
+
+1. **Go 1.21 or later**
+   ```bash
+   # Verify Go installation
+   go version
+   # Should show: go version go1.21.x or higher
+   ```
+
+2. **TheCarrionLanguage Runtime**
+   ```bash
+   # Install TheCarrionLanguage first
+   git clone https://github.com/javanhut/TheCarrionLanguage.git
+   cd TheCarrionLanguage
+   make install
+   
+   # Verify installation
+   carrion --version
+   which carrion
+   ```
+
+3. **Git**
+   ```bash
+   # Verify Git installation
+   git --version
+   ```
+
+#### Optional Dependencies
+
+- **golangci-lint** (for development)
+  ```bash
+  # Install golangci-lint for code quality checks
+  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+  ```
 
 ### Installation
+
+#### Method 1: From Source (Recommended)
 
 ```bash
 # Clone the repository
 git clone https://github.com/javanhut/CarrionLSP.git
 cd CarrionLSP
 
+# Download Go dependencies
+make deps
+
 # Build the LSP server
 make build
 
+# Verify build
+./build/carrion-lsp --help
+
 # Install globally (optional)
-make install
+sudo make install
+
+# Verify installation
+carrion-lsp --help
+which carrion-lsp
+```
+
+#### Method 2: Development Build
+
+```bash
+# Clone and setup for development
+git clone https://github.com/javanhut/CarrionLSP.git
+cd CarrionLSP
+
+# Install dependencies and run quality checks
+make deps
+make check
+
+# Build and test
+make build
+make test
+
+# Install for development
+sudo make install
+```
+
+### Installation Verification
+
+After installation, verify everything works:
+
+```bash
+# Check CarrionLSP installation
+carrion-lsp --help
+
+# Test basic functionality
+echo 'spell test(): print("hello")' > test.crl
+carrion-lsp --stdio --log=/tmp/test.log < /dev/null &
+LSP_PID=$!
+sleep 2
+kill $LSP_PID
+cat /tmp/test.log
+rm test.crl /tmp/test.log
+
+# Verify Carrion runtime integration
+carrion -c 'print("Carrion runtime working")'
+```
+
+### System-Specific Notes
+
+#### Linux/Ubuntu
+```bash
+# Install build essentials if needed
+sudo apt update
+sudo apt install build-essential git
+
+# For notifications (optional)
+sudo apt install libnotify-bin
+```
+
+#### macOS
+```bash
+# Install Xcode command line tools
+xcode-select --install
+
+# Using Homebrew (optional)
+brew install go git
+```
+
+#### Windows
+```bash
+# Use Windows Subsystem for Linux (WSL) or
+# Install Go and Git for Windows directly
+# Note: Some features may require WSL for full compatibility
 ```
 
 ### Basic Usage
@@ -368,6 +479,88 @@ CarrionLSP/
 
 ### Common Issues
 
+#### **Build and Installation Issues**
+
+1. **Go Version Too Old**
+   ```bash
+   # Error: "go: go.mod requires go >= 1.21"
+   # Solution: Update Go to 1.21 or later
+   go version
+   # If old, download from https://golang.org/dl/
+   ```
+
+2. **TheCarrionLanguage Not Found**
+   ```bash
+   # Error: "package github.com/javanhut/TheCarrionLanguage/src/ast: cannot find package"
+   # Solution: Install TheCarrionLanguage first
+   git clone https://github.com/javanhut/TheCarrionLanguage.git
+   cd TheCarrionLanguage && make install
+   ```
+
+3. **Build Dependencies Missing**
+   ```bash
+   # Error: "make: *** No rule to make target 'build'"
+   # Solution: Ensure you're in the CarrionLSP directory
+   pwd  # Should end with /CarrionLSP
+   ls Makefile  # Should exist
+   make deps    # Download dependencies
+   ```
+
+4. **Permission Denied on Install**
+   ```bash
+   # Error: "cp: cannot create regular file '/usr/local/bin/carrion-lsp': Permission denied"
+   # Solution: Use sudo for system installation
+   sudo make install
+   # Or install to user directory:
+   mkdir -p ~/bin && cp build/carrion-lsp ~/bin/
+   export PATH="$HOME/bin:$PATH"
+   ```
+
+5. **golangci-lint Not Found**
+   ```bash
+   # Warning: "golangci-lint not found"
+   # Solution: Install golangci-lint or skip linting
+   make build  # Skip linting, just build
+   # Or install golangci-lint:
+   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+   ```
+
+#### **Runtime Issues**
+
+1. **LSP Server Won't Start**
+   ```bash
+   # Check if binary exists and is executable
+   ls -la build/carrion-lsp
+   chmod +x build/carrion-lsp
+   
+   # Test with debug logging
+   ./build/carrion-lsp --stdio --log=/tmp/debug.log --debug
+   tail -f /tmp/debug.log
+   ```
+
+2. **Carrion Runtime Integration Failed**
+   ```bash
+   # Verify Carrion is in PATH
+   which carrion
+   carrion --version
+   
+   # Check GOPATH and module path
+   go env GOPATH
+   go mod why github.com/javanhut/TheCarrionLanguage
+   ```
+
+#### **Editor Integration Issues**
+
+1. **LSP Not Connecting**
+   ```bash
+   # Test LSP manually
+   echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}' | carrion-lsp --stdio
+   
+   # Check editor configuration
+   # Ensure editor is using correct binary path
+   which carrion-lsp
+   ```
+
 #### **No Completions Showing**
 
 1. **Enable Debug Mode**
@@ -387,13 +580,21 @@ CarrionLSP/
 
 #### **Package Import Errors**
 
-1. **Check Bifrost Installation**
+1. **Built-in Module Warnings (FIXED in v2.0.1)**
+   ```bash
+   # These warnings are now eliminated:
+   # "Warning: Failed to load import file: package not found: file"
+   # "Warning: Failed to load import os: package not found: os"
+   ```
+   **Solution**: Built-in modules (`file`, `os`, `time`, `http`) are now automatically recognized and don't require external loading.
+
+2. **Check Bifrost Installation**
    ```bash
    which bifrost
    bifrost list
    ```
 
-2. **Verify Package Paths**
+3. **Verify Package Paths**
    ```bash
    ls ~/.carrion/packages/
    ls ./carrion_modules/
@@ -419,6 +620,39 @@ carrion-lsp --stdio --debug --log=/tmp/carrion-lsp-debug.log &
 tail -f /tmp/carrion-lsp-debug.log
 ```
 
+## Changelog
+
+### v2.0.1 (Latest) - Stability & Test Improvements
+
+#### **Bug Fixes**
+- **Fixed built-in module import warnings**: Eliminated "package not found" warnings for built-in modules (`file`, `os`, `time`, `http`) by properly recognizing them as runtime modules
+- **Corrected hover test positioning**: Fixed `TestAnalyzer_GetHover_Grimoire` test to correctly identify grimoire definitions at proper line positions
+- **Enhanced formatter syntax support**: Updated formatter tests to use correct Carrion syntax for `attempt`/`ensnare`/`resolve` blocks
+- **Improved array formatting logic**: Fixed formatter tests to align with multi-line array formatting rules (3+ elements)
+
+#### **Test Suite Improvements**
+- **All tests now passing**: Achieved 100% test pass rate across all components
+- **Enhanced test coverage**: Added proper Carrion syntax examples in formatter tests
+- **Fixed test indentation**: Corrected all test cases to use proper Carrion indentation patterns
+- **Improved test reliability**: Eliminated flaky tests with better position calculations
+
+#### **Technical Enhancements**
+- **Enhanced Bifrost integration**: Added `isBuiltinModule()` function to properly handle built-in vs. external packages
+- **Improved error handling**: Better distinction between runtime modules and Bifrost packages
+- **Code quality improvements**: Automatic code formatting and lint compliance
+- **Documentation accuracy**: Updated syntax examples to match actual Carrion grammar
+
+#### **Test Results**
+```bash
+github.com/javanhut/CarrionLSP         - Main LSP functionality
+internal/analyzer                      - Core analysis engine  
+internal/protocol                      - LSP protocol handling
+All formatter tests passing            - Syntax parsing & formatting
+All analyzer tests passing             - Symbol resolution & completion
+```
+
+---
+
 ## What's New in Dynamic Version
 
 ### Major Improvements
@@ -430,6 +664,8 @@ tail -f /tmp/carrion-lsp-debug.log
 | **Type Inference** | Basic primitive types | **Constructor calls + runtime types** |
 | **Package Support** | Manual configuration | **Automatic bifrost integration** |
 | **Updates** | Manual code changes | **Real-time runtime sync** |
+| **Test Coverage** | Partial test reliability | **100% test pass rate** |
+| **Import Handling** | Import warnings | **Clean built-in module resolution** |
 
 ### Performance Metrics
 

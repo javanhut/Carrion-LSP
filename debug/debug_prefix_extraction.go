@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -10,7 +13,7 @@ import (
 
 func main() {
 	fmt.Println("Debug: Prefix extraction")
-	
+
 	a := analyzer.New()
 
 	// Test different code scenarios
@@ -42,9 +45,9 @@ func main() {
 
 	for _, testCase := range testCases {
 		fmt.Printf("\n=== %s ===\n", testCase.name)
-		
+
 		a.UpdateDocument("test.crl", testCase.code, nil)
-		
+
 		// Extract prefix manually like the function does
 		lines := strings.Split(testCase.code, "\n")
 		currentLine := lines[testCase.line]
@@ -52,22 +55,22 @@ func main() {
 		if testCase.char <= len(currentLine) {
 			prefix = currentLine[:testCase.char]
 		}
-		
+
 		fmt.Printf("Code: %q\n", testCase.code)
 		fmt.Printf("Line %d: %q\n", testCase.line, currentLine)
 		fmt.Printf("Prefix (char %d): %q\n", testCase.char, prefix)
 		fmt.Printf("Has suffix '.': %v\n", strings.HasSuffix(prefix, "."))
 		fmt.Printf("Has suffix '(': %v\n", strings.HasSuffix(prefix, "("))
-		
+
 		completions := a.GetCompletions("test.crl", protocol.Position{Line: testCase.line, Character: testCase.char})
-		
+
 		fmt.Printf("Completions found: %d\n", len(completions))
-		
+
 		// Check what built-ins should match this prefix
 		builtins := a.GetBuiltins()
 		lastToken := extractLastToken(prefix)
 		fmt.Printf("Last token from prefix: %q\n", lastToken)
-		
+
 		matchingBuiltins := 0
 		for name := range builtins {
 			if strings.HasPrefix(name, lastToken) {

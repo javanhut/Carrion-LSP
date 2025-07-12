@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -27,36 +30,36 @@ func main() {
 		TabSize:      4,
 		InsertSpaces: true,
 	}
-	
+
 	formatter := analyzer.NewCarrionFormatter(options)
-	
+
 	// Format the input
 	edits, err := formatter.FormatDocument(string(input))
 	if err != nil {
 		log.Fatalf("Formatting failed: %v", err)
 	}
-	
+
 	if len(edits) == 0 {
 		fmt.Println("No formatting changes needed")
 		return
 	}
-	
+
 	result := edits[0].NewText
-	
+
 	fmt.Println("=== INPUT ===")
 	fmt.Println(string(input))
 	fmt.Println("\n=== FORMATTER OUTPUT ===")
 	fmt.Println(result)
 	fmt.Println("\n=== EXPECTED ===")
 	fmt.Println(string(expected))
-	
+
 	fmt.Println("\n=== COMPARISON ===")
 	if result == string(expected) {
 		fmt.Println("✅ PERFECT MATCH! Formatter produces exactly the expected output.")
 	} else {
 		fmt.Println("❌ MISMATCH - Formatter output differs from expected.")
 		fmt.Printf("Expected length: %d, Got length: %d\n", len(expected), len(result))
-		
+
 		// Show ending characters in detail
 		fmt.Printf("Expected ends with: %q\n", string(expected)[len(expected)-10:])
 		fmt.Printf("Result ends with: %q\n", result[len(result)-10:])

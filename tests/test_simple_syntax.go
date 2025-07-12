@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -9,11 +12,11 @@ import (
 
 func testSyntax(name, input string) {
 	fmt.Printf("\n=== Testing %s ===\n", name)
-	
+
 	l := lexer.New(input)
 	p := parser.New(l)
 	_ = p.ParseProgram()
-	
+
 	if len(p.Errors()) > 0 {
 		fmt.Printf("❌ Parsing errors:\n")
 		for _, err := range p.Errors() {
